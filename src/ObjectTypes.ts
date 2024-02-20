@@ -61,7 +61,8 @@ const hasBoth2: FirstAndLastNames = {
   last: "Jalilov",
 };
 
-const hasOnlyOne: FirstAndLastNames = { //Shows error as 'last' property is missing.
+const hasOnlyOne: FirstAndLastNames = {
+  //Shows error as 'last' property is missing.
   first: "Timur",
 };
 
@@ -198,3 +199,9 @@ const unionObject: Union =
 unionObject.name;
 unionObject.surname; //Shows error because surname is not guaranteed property of 'Union' type and surname does not exist in 'SecondType'.
 unionObject.message; //Shows error because message is not guaranteed property of 'Union' type and message does not exist in 'FirstType'.
+
+//Narrowing object types: If the type checker sees the code block can only be run if the typed value contains a certain property it will narrow the type.
+const unionObjectToBeNarrowed: Union =
+  Math.random() > 5
+    ? { name: "timur", surname: "jalilov" }
+    : { name: "timur", message: "hello" };
