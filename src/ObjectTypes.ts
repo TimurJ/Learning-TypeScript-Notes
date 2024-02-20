@@ -61,12 +61,7 @@ const hasBoth2: FirstAndLastNames = {
   last: "Jalilov",
 };
 
-<<<<<<< Updated upstream
-const hasOnlyOne: FirstAndLastNames = {
-  //Shows error as 'last' property is missing.
-=======
 const hasOnlyOne: FirstAndLastNames = { //Shows error as 'last' property is missing.
->>>>>>> Stashed changes
   first: "Timur",
 };
 
