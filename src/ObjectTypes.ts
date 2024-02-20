@@ -33,7 +33,7 @@ type Person = {
 let person3: Person;
 
 //Structural Typing: any value that satisfies the type is allowed to be used.
-//JavaScript is duck typed whereas TypeScript is structurally typed.
+//JavaScript is duck typed whereas TypeScript is structurally typed. Duck typing object types aren't checked until runtime.
 type WithFirstName = {
   firstName: string;
 };
@@ -61,8 +61,8 @@ const hasBoth2: FirstAndLastNames = {
   last: "Jalilov",
 };
 
-const hasOnlyOne: FirstAndLastNames = {
-  //Shows error as 'last' property is missing.
+  const hasOnlyOne: FirstAndLastNames = { //Shows error as 'last' property is missing.
+
   first: "Timur",
 };
 
