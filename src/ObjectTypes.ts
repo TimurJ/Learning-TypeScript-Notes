@@ -30,7 +30,7 @@ type Person = {
   age: number;
 };
 
-let person3: Person;
+let person3: Person = { name: "timur", age: 10 };
 
 //Structural Typing: any value that satisfies the type is allowed to be used.
 //JavaScript is duck typed whereas TypeScript is structurally typed. Duck typing object types aren't checked until runtime.
@@ -61,8 +61,8 @@ const hasBoth2: FirstAndLastNames = {
   last: "Jalilov",
 };
 
-  const hasOnlyOne: FirstAndLastNames = { //Shows error as 'last' property is missing.
-
+const hasOnlyOne: FirstAndLastNames = {
+  //Shows error as 'last' property is missing.
   first: "Timur",
 };
 
@@ -101,6 +101,7 @@ const extraFieldObject = {
 
 const extraFieldNotChecked: ExpectedFields = extraFieldObject; //Excess property check hasn't been performed. Note normal field checked still happen if name or surname is missing error shown.
 
+//Stopped here continue later.
 //Nested Object Types: Objects can be nested as members of other objects, type representation is same as before {...}
 type ContainerObject = {
   nestedObject: {
@@ -178,17 +179,17 @@ dualObjectType.firstNotShared; // could be 'number | undefined' as it's not guar
 dualObjectType.secondNotShared; // could be 'boolean | undefined' as it's not guaranteed.
 
 //Explicit Object-Type Unions: Best practice to write your own object types. Added benefit unions formed with explicitly typed object types allow access only to shared properties.
-type FirstType = {
+type TypeWithSurname = {
   name: string;
   surname: string;
 };
 
-type SecondType = {
+type TypeWithMessage = {
   name: string;
   message: string;
 };
 
-type Union = FirstType | SecondType;
+type Union = TypeWithSurname | TypeWithMessage;
 
 const unionObject: Union =
   Math.random() > 0.5
@@ -205,3 +206,116 @@ const unionObjectToBeNarrowed: Union =
   Math.random() > 5
     ? { name: "timur", surname: "jalilov" }
     : { name: "timur", message: "hello" };
+
+if ("message" in unionObjectToBeNarrowed) {
+  unionObjectToBeNarrowed.message; //No error as the type is narrowed to TypeWithMessage which has the required property message
+} else {
+  unionObjectToBeNarrowed.surname; //No error as the type is narrowed to TypeWithSurname which has the required property surname
+}
+
+//Note: you cannot perform truthiness existence checks like below. Attempting to access a property that might not exist is a type error.
+
+if (unionObjectToBeNarrowed.message) {
+  //Throws error as message is not guaranteed to exist on the Union type.
+}
+
+//Discriminated Unions: You can also use 'type' property on Types to 'discriminate' against that type in a Union
+type BookWithWords = {
+  name: string;
+  words: string;
+  type: "words";
+};
+
+type BookWithPictures = {
+  name: string;
+  pictures: boolean;
+  type: "pictures";
+};
+
+type Book = BookWithWords | BookWithPictures;
+
+const book: Book =
+  Math.random() > 0.5
+    ? { name: "WordBook", words: "hello", type: "words" }
+    : { name: "PictureBook", pictures: true, type: "pictures" };
+
+if (book.type === "words") {
+  book.words; //It has been narrowed to the BookWithWords type because of the if condition
+} else {
+  book.pictures; //No error here either it was narrowed down to the BookWithPictures type
+}
+
+book.type; //Type: 'words' | 'pictures'
+book.words; //Error as words is not guaranteed to exist in the Book Union type.
+
+//Intersection Types: just as '|' operator is used to denote 'or' there is the '&' operator typically used with Aliased object types, called the 'Intersection' type.
+type ArtWork = {
+  genre: string;
+  name: string;
+};
+
+type Writing = {
+  pages: string;
+  name: string;
+};
+
+type WrittenArt = ArtWork & Writing;
+/* 
+Equivalent to:
+{
+  genre: string;
+  name: string;
+  pages: string;
+}
+*/
+
+//Intersection types can be combined with Union types. This is useful when you expect all of the Types that are being United to have a certain property.
+type Athlete = { name: string } & (
+  | { maxWeight: number; type: "powerLifter" }
+  | { topSpeed: number; type: "sprinter" }
+);
+
+const lifter: Athlete = {
+  name: "timur",
+  maxWeight: 100,
+  type: "powerLifter",
+};
+
+const sprinter: Athlete = {
+  name: "timur",
+  topSpeed: 10,
+  type: "sprinter",
+};
+
+const noName: Athlete = {
+  //Error property name is missing
+  topSpeed: 10,
+  type: "sprinter",
+};
+
+const noTopSpeed: Athlete = {
+  //Error property topSpeed is missing
+  name: "timur",
+  type: "sprinter",
+};
+
+//Dangers of Intersection types: DO NOT overuse Intersection types especially with Union types. This will confuse the TypeScript compiler and you whenever errors occur.
+
+//Better version of Athlete type:
+type AthleteBase = { name: string };
+type PowerLifter = AthleteBase & { maxWeight: number; type: "powerLifter" };
+type Sprinter = AthleteBase & { topSpeed: number; type: "sprinter" };
+type BetterAthlete = PowerLifter | Sprinter;
+
+const sprinterError: BetterAthlete = {
+  //Shows a clearer to understand error as it narrows down from BetterAthlete type to Sprinter and finally to the topSpeed being missing. See error on line 296 it's more confusing.
+  name: "timur",
+  type: "sprinter",
+};
+
+//never: It's easy to misuse Intersection Types and create a impossible type with Primitive types as they cannot be joined together, it's impossible for a value to be multiple primitives at the same time.
+//This returns a never type. 'never' keyword and type is referred to as a 'bottom type' or 'empty type'. This means it can have no possible values and can never be reached.
+type NotPossible = number & string;
+
+let notNumber: NotPossible = 0; //Error cannot assign number to never
+let notString: NotPossible = ""; //Error cannot assign string to never
