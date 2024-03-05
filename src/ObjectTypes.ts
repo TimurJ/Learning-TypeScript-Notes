@@ -101,7 +101,6 @@ const extraFieldObject = {
 
 const extraFieldNotChecked: ExpectedFields = extraFieldObject; //Excess property check hasn't been performed. Note normal field checked still happen if name or surname is missing error shown.
 
-//Stopped here continue later.
 //Nested Object Types: Objects can be nested as members of other objects, type representation is same as before {...}
 type ContainerObject = {
   nestedObject: {
@@ -144,7 +143,7 @@ const incorrectObject1: AliasedContainerObject = {
 //Optional Properties: Not all object properties have to be required, including '?' before the ':' will make property optional. Note property that can be 'undefined' is not the same as optional.
 type HasOptionalProperty = {
   required: string;
-  optional?: number;
+  optional?: number; //Use undefined and required when you need to make sure the user should decide explicitly
 };
 
 const onlyRequired: HasOptionalProperty = {
@@ -168,6 +167,7 @@ const dualObjectType =
 //   firstNotShared: number;
 //   secondNotShared?: undefined;
 // }
+// |
 // {
 //   sharedProperty: string;
 //   firstNotShared?: undefined;
@@ -200,6 +200,38 @@ const unionObject: Union =
 unionObject.name;
 unionObject.surname; //Shows error because surname is not guaranteed property of 'Union' type and surname does not exist in 'SecondType'.
 unionObject.message; //Shows error because message is not guaranteed property of 'Union' type and message does not exist in 'FirstType'.
+
+type CreateRequest = {
+  type: "CreateRequest";
+  data: {
+    name: string;
+    surname: string;
+  };
+};
+
+type CreateAck = {
+  type: "CreateAck";
+  correlationId: string;
+};
+
+type CreateNack = {
+  type: "CreateNack";
+  correlationId: string;
+  message: string;
+};
+
+type MessageType = CreateRequest | CreateAck | CreateNack;
+
+const message: MessageType = {
+  type: "CreateRequest",
+  data: { name: "timur", surname: "jalilov" },
+};
+
+switch (message.type) {
+  case "CreateRequest":
+    message.data.name;
+    break;
+}
 
 //Narrowing object types: If the type checker sees the code block can only be run if the typed value contains a certain property it will narrow the type.
 const unionObjectToBeNarrowed: Union =
